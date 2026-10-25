@@ -31,8 +31,9 @@ sips --resampleWidth 700 -s format jpeg -s formatOptions 75 원본/*.jpg --out i
 ## 3. 카카오맵 지도 · 카카오톡 공유 (카카오 JavaScript 키 하나로 둘 다)
 1. https://developers.kakao.com → **내 애플리케이션 > 애플리케이션 추가하기**
 2. **플랫폼 키 > JavaScript 키**를 `config.js`의 `kakaoKey`에
-3. ⚠️ 도메인 **두 곳 모두** 등록 (배포 주소 `https://xxx.netlify.app`, 로컬 확인용 `http://localhost:8000`)
-   - `플랫폼 키 > JavaScript SDK 도메인` → 지도와 공유 둘 다 여기가 필요
+3. ⚠️ 도메인 **두 곳 모두** 배포 주소(`https://xxx.netlify.app`)로 등록 — 카카오는 localhost/127.0.0.1을 받지 않으므로 **Netlify에 먼저 배포**한 뒤 등록하세요 (4번 참고)
+   - `플랫폼 키 > JavaScript 키 > JavaScript SDK 도메인` → 지도와 공유 둘 다 여기가 필요
+     (`앱 대표 도메인`과는 다른 칸입니다. 대표 도메인은 지도/공유와 무관하니 비워둬도 됩니다)
    - `제품 링크 관리 > 웹 도메인` → 공유 카드의 링크가 열리려면 필요
 4. 제품 설정에서 **카카오맵** 사용 설정 **ON** (안 켜면 지도가 빈 화면)
 5. `venue.lat`, `venue.lng`에 예식장 좌표 입력 (카카오맵/구글맵에서 장소 우클릭으로 확인)
@@ -46,4 +47,4 @@ sips --resampleWidth 700 -s format jpeg -s formatOptions 75 원본/*.jpg --out i
 
 **드래그 배포**: https://app.netlify.com/drop 에 폴더를 끌어놓기. 수정 후엔 같은 사이트의 Deploys 탭에 다시 끌어놓으면 URL 유지.
 
-로컬 미리보기: `python3 -m http.server 8000` 후 http://localhost:8000
+로컬 미리보기: `python3 -m http.server 8000` 후 http://localhost:8000 (카카오맵 지도는 로컬에선 안 뜨고 배포 주소에서만 보입니다)
