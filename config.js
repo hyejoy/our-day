@@ -13,15 +13,22 @@ window.CONFIG = {
     name: '서울신라호텔',
     hall: '영빈관',
     address: '서울 중구 동호로 249',
-    mapUrl: 'https://map.naver.com/p/search/서울신라호텔',
-    notes: [
-      '3호선 동국대입구역 5번 출구 도보 7분',
-      '주차: 호텔 지하 (예식 시간 무료)',
-      '강남역 11번 출구 셔틀버스 운영 (12:30–13:30, 30분 간격)',
+    tel: '02-2233-3131',
+    // 지도 좌표: 카카오맵에서 장소 검색 > 우클릭 '이 위치의 주소/좌표' 또는 구글맵 우클릭으로 확인
+    lat: 37.5559,
+    lng: 127.0054,
+    transport: [
+      { title: '지하철', lines: ['3호선 동국대입구역 5번 출구 도보 7분'] },
+      { title: '버스', lines: ['144, 301, 7212번', '장충체육관 정류장 하차 후 도보 5분'] },
+      { title: '자가용', lines: ['내비게이션에 "서울신라호텔" 검색', '호텔 지하 주차장 (예식 시간 무료)'] },
+      { title: '셔틀버스', lines: ['동국대입구역 5번 출구 앞', '12:30–13:30, 10분 간격 운행'] },
     ],
   },
 
-  mainPhoto: 'https://picsum.photos/seed/main/700/900',
+  mainPhoto: 'images/main.jpg',
+  // 메인 사진 위에 한 줄씩 써지는 제목 (\n 으로 줄바꿈)과 아래쪽 문구
+  heroTitle: 'our\nwedding\nday',
+  heroCaption: 'Forever begins with a single step,\nAnd love guides us every step of the way.',
 
   invitation: {
     title: '서로의 계절을\n함께 걷기로 했습니다',
@@ -29,7 +36,7 @@ window.CONFIG = {
   },
 
   // 사진은 700px 폭, JPEG 품질 75% 정도로 줄여서 images/ 에 넣고 경로만 적으세요
-  gallery: [1, 2, 3, 4, 5, 6, 7, 8].map((n) => `https://picsum.photos/seed/g${n}/700/875`),
+  gallery: [1, 2, 3, 4, 5, 6, 7, 8].map((n) => `images/gallery/${n}.jpg`),
 
   contacts: {
     groom: [
@@ -64,10 +71,11 @@ window.CONFIG = {
     image: 'https://picsum.photos/seed/main/800/1200',
   },
 
-  // https://developers.kakao.com > 내 애플리케이션 > 앱 키 > JavaScript 키. 비우면 링크 복사로 대체
+  // https://developers.kakao.com > 내 애플리케이션 > 앱 키 > JavaScript 키
+  // 카카오맵 지도와 카카오톡 공유에 같이 씀. 비우면 지도는 숨기고 공유는 링크 복사로 대체
   kakaoKey: '',
 
-  // Firebase 콘솔 > 프로젝트 설정 > 웹 앱 config 객체. 비우면 방명록/RSVP/하트가 숨겨짐
+  // Firebase 콘솔 > 프로젝트 설정 > 웹 앱 config 객체. 비우면 RSVP/하트는 숨겨지고 방명록은 작성 불가
   firebase: null,
 
   // 방명록 삭제용 관리자 비밀번호의 SHA-256 값: echo -n '비밀번호' | shasum -a 256

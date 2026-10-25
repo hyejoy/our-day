@@ -28,6 +28,23 @@ async function copy(text, msg) {
 const { groom: g, bride: b, venue: v } = C;
 document.title = `${g.name} ♥ ${b.name} 결혼합니다`;
 $('mainPhoto').src = C.mainPhoto;
+// 한 줄씩 차례로 써지도록: 글자 수에 비례한 속도, 앞 줄이 거의 끝날 때 다음 줄 시작
+{
+  let at = 0.7;
+  $('heroTitle').innerHTML = C.heroTitle.split('\n').map((line) => {
+    const dur = 0.4 + line.length * 0.28;
+    const html = `<span style="animation-delay:${at}s;animation-duration:${dur}s">${esc(line)}</span>`;
+    at += dur * 0.85;
+    return html;
+  }).join('');
+  document.querySelector('.hero-caption').style.animationDelay = `${at + 0.3}s`;
+}
+$('heroCaption').textContent = C.heroCaption;
+{
+  const en = (o) => k.toLocaleString('en-US', { timeZone: 'UTC', ...o });
+  const ord = [11, 12, 13].includes(D % 100) ? 'th' : ['th', 'st', 'nd', 'rd'][D % 10] ?? 'th';
+  $('heroEnDate').textContent = `- ${en({ weekday: 'short' })}, ${en({ month: 'short' })} ${D}${ord}, ${Y} -`;
+}
 $('heroNames').innerHTML = `${esc(g.name)}<span class="amp">&amp;</span>${esc(b.name)}`;
 $('heroDate').textContent = dateText;
 $('heroVenue').textContent = `${v.name} · ${v.hall}`;
@@ -36,10 +53,32 @@ $('inviteBody').textContent = C.invitation.body;
 $('parents').innerHTML = [g, b].map((p) =>
   `<div>${esc(p.father)} · ${esc(p.mother)}<small>의 ${esc(p.relation)}</small>${esc(p.name)}</div>`).join('');
 
-$('venueName').textContent = v.name;
-$('venueAddr').textContent = `${v.address} · ${v.hall}`;
-$('mapBtn').href = v.mapUrl;
-$('venueNotes').innerHTML = v.notes.map((n) => `<li>${esc(n)}</li>`).join('');
+$('venueName').innerHTML = `${esc(v.name)}${v.tel ? ` <a class="tel" href="tel:${esc(v.tel)}" aria-label="예식장에 전화">☎</a>` : ''}`;
+$('venueAddr').textContent = `${v.hall}\n${v.address}`;
+const to = encodeURIComponent(v.name);
+const kakaoRoute = `https://map.kakao.com/link/to/${to},${v.lat},${v.lng}`;
+$('navs').innerHTML = [
+  ['카카오맵', kakaoRoute],
+  ['네이버지도', `https://map.naver.com/p/search/${to}`],
+].map(([t, href]) => `<a href="${href}" target="_blank" rel="noopener">${t}</a>`).join('');
+$('transport').innerHTML = v.transport.map((t) =>
+  `<div><h3>${esc(t.title)}</h3>${t.lines.map((l) => `<p>${esc(l)}</p>`).join('')}</div>`).join('');
+
+// 카카오맵: 스크롤을 방해하지 않게 고정 지도로 띄우고, 누르면 카카오맵 길찾기로 이동
+if (C.kakaoKey) {
+  const s = document.createElement('script');
+  s.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(C.kakaoKey)}&autoload=false`;
+  s.onload = () => kakao.maps.load(() => {
+    const pos = new kakao.maps.LatLng(v.lat, v.lng);
+    const map = new kakao.maps.Map($('map'), { center: pos, level: 3, draggable: false, scrollwheel: false, disableDoubleClickZoom: true });
+    new kakao.maps.Marker({ map, position: pos });
+    kakao.maps.event.addListener(map, 'click', () => window.open(kakaoRoute, '_blank'));
+  });
+  s.onerror = () => ($('map').hidden = true);
+  document.head.append(s);
+} else {
+  $('map').hidden = true;
+}
 
 $('footNames').innerHTML = `${esc(g.name)}<i></i>${esc(b.name)}`;
 $('footDate').textContent = `${Y} . ${pad(M + 1)} . ${pad(D)}`;
@@ -62,12 +101,20 @@ $('calTitle').textContent = `${Y}년 ${M + 1}월 ${D}일 ${WEEK[k.getUTCDay()]}�
 }
 
 // ---------- 카운트다운 ----------
+$('countdown').innerHTML = ['Days', 'Hours', 'Min', 'Sec'].map((l, i) =>
+  `${i ? '<i>:</i>' : ''}<div><b></b><small>${l}</small></div>`).join('');
+const digits = $('countdown').querySelectorAll('b');
 function tick() {
   const ms = Math.max(0, wedding - Date.now());
-  const parts = [[Math.floor(ms / DAY), 'Days'], [Math.floor(ms / 36e5) % 24, 'Hours'],
-    [Math.floor(ms / 6e4) % 60, 'Min'], [Math.floor(ms / 1e3) % 60, 'Sec']];
-  $('countdown').innerHTML = parts.map(([n, l], i) =>
-    `${i ? '<i>:</i>' : ''}<div>${i ? pad(n) : n}<small>${l}</small></div>`).join('');
+  const parts = [Math.floor(ms / DAY), Math.floor(ms / 36e5) % 24, Math.floor(ms / 6e4) % 60, Math.floor(ms / 1e3) % 60];
+  parts.forEach((n, i) => {
+    const text = i ? pad(n) : String(n);
+    if (digits[i].textContent === text) return;
+    digits[i].textContent = text;
+    digits[i].classList.remove('roll');
+    void digits[i].offsetWidth; // 애니메이션 재시작
+    digits[i].classList.add('roll');
+  });
   const n = dday();
   $('countdownText').innerHTML = n > 0
     ? `${esc(g.name)} <span class="heart">♥</span> ${esc(b.name)}의 결혼식이 ${n}일 남았습니다`
@@ -80,11 +127,22 @@ setInterval(tick, 1000);
 $('gallery').innerHTML = C.gallery.map((src, i) =>
   `<button data-i="${i}" aria-label="사진 ${i + 1} 크게 보기"><img src="${esc(src)}" alt="" loading="lazy"></button>`).join('');
 $('strip').innerHTML = C.gallery.map((src) => `<img src="${esc(src)}" alt="" loading="lazy">`).join('');
+const strip = $('strip');
+const slide = () => Math.round(strip.scrollLeft / strip.clientWidth);
+const go = (i) => strip.scrollTo({ left: strip.clientWidth * i, behavior: 'smooth' });
+strip.addEventListener('scroll', () => ($('lbCount').textContent = `${slide() + 1} / ${C.gallery.length}`));
 $('gallery').addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if (!btn) return;
   $('lightbox').showModal();
-  $('strip').scrollLeft = $('strip').clientWidth * btn.dataset.i;
+  strip.scrollLeft = strip.clientWidth * btn.dataset.i;
+  $('lbCount').textContent = `${+btn.dataset.i + 1} / ${C.gallery.length}`;
+});
+$('lbPrev').onclick = () => go(slide() - 1);
+$('lbNext').onclick = () => go(slide() + 1);
+$('lightbox').addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') go(slide() - 1);
+  if (e.key === 'ArrowRight') go(slide() + 1);
 });
 
 // ---------- 연락처 / 계좌 ----------
@@ -129,10 +187,11 @@ if (C.kakaoKey) {
 
 // ---------- 스크롤 등장 + 타자기 문구 ----------
 function typeQuote() {
+  const text = `“${C.quote}”`;
   let i = 0;
   const t = setInterval(() => {
-    $('quote').textContent = C.quote.slice(0, ++i);
-    if (i >= C.quote.length) clearInterval(t);
+    $('quote').textContent = text.slice(0, ++i);
+    if (i >= text.length) clearInterval(t);
   }, 70);
 }
 const io = new IntersectionObserver((entries) => entries.forEach((en) => {
@@ -141,11 +200,28 @@ const io = new IntersectionObserver((entries) => entries.forEach((en) => {
   if (en.target.tagName === 'FOOTER') typeQuote();
   io.unobserve(en.target);
 }), { threshold: 0.15 });
-document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+document.querySelectorAll('.reveal, .gallery button').forEach((el) => io.observe(el));
+
+// 하트가 떠오르는 효과
+function floatHearts() {
+  const r = $('likeBtn').getBoundingClientRect();
+  for (let i = 0; i < 6; i++) {
+    const h = document.createElement('span');
+    h.className = 'float-heart';
+    h.textContent = '♥';
+    h.style.left = `${r.left + r.width / 2}px`;
+    h.style.setProperty('--dx', `${(Math.random() - 0.5) * 60}px`);
+    h.style.top = `${r.top}px`;
+    h.style.animationDelay = `${i * 80}ms`;
+    h.addEventListener('animationend', () => h.remove());
+    document.body.append(h);
+  }
+}
 
 // ---------- Firebase: 방명록 / RSVP / 하트 ----------
 if (!C.firebase) {
   document.querySelectorAll('[data-needs="firebase"]').forEach((el) => (el.hidden = true));
+  $('guestForm').onsubmit = () => toast('방명록을 쓰려면 Firebase 설정이 필요합니다 (README 참고)');
 } else {
   const FB = 'https://www.gstatic.com/firebasejs/10.12.2/';
   const [{ initializeApp }, fs] = await Promise.all([import(FB + 'firebase-app.js'), import(FB + 'firebase-firestore.js')]);
@@ -153,29 +229,19 @@ if (!C.firebase) {
   const db = getFirestore(initializeApp(C.firebase));
   const root = doc(db, 'invitations', C.id);
 
-  // 방명록 (실시간)
-  const PER = 4;
-  let entries = [], page = 0;
-  function renderGuestbook() {
-    const pages = Math.max(1, Math.ceil(entries.length / PER));
-    page = Math.min(page, pages - 1);
-    $('guestbook').innerHTML = entries.length ? entries.slice(page * PER, page * PER + PER).map((e) => {
-      const d = e.createdAt?.toDate() ?? new Date();
-      return `<li><div class="head">${esc(e.name)}<span class="date">${String(d.getFullYear()).slice(2)}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}</span>
-        <button class="del" data-del="${e.id}" aria-label="삭제">✕</button></div><p>${esc(e.message)}</p></li>`;
-    }).join('') : '<li class="empty">첫 축하 글을 남겨주세요</li>';
-    $('pager').innerHTML = pages > 1
-      ? `<button data-page="-1" ${page ? '' : 'disabled'}>&lt;</button>${page + 1} / ${pages}<button data-page="1" ${page < pages - 1 ? '' : 'disabled'}>&gt;</button>`
-      : '';
-  }
-  onSnapshot(query(collection(root, 'guestbook'), orderBy('createdAt', 'desc')), (snap) => {
-    entries = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    renderGuestbook();
-  });
-  $('pager').onclick = (e) => {
-    const b = e.target.closest('[data-page]');
-    if (b) { page += +b.dataset.page; renderGuestbook(); }
+  // 방명록 (실시간): 최근 3개는 본문에, 전체는 '전체보기' 창에
+  const SHOW = 3;
+  const card = (e) => {
+    const d = e.createdAt?.toDate() ?? new Date();
+    return `<li><div class="head">${esc(e.name)}<span class="date">${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}</span>
+      <button class="del" data-del="${e.id}" aria-label="삭제">✕</button></div><p>${esc(e.message)}</p></li>`;
   };
+  onSnapshot(query(collection(root, 'guestbook'), orderBy('createdAt', 'desc')), (snap) => {
+    const entries = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    $('guestbook').innerHTML = entries.length ? entries.slice(0, SHOW).map(card).join('') : '<li class="empty">첫 축하 글을 남겨주세요</li>';
+    $('guestbookAll').innerHTML = entries.map(card).join('');
+    $('allBtn').hidden = entries.length <= SHOW;
+  });
   $('guestForm').onsubmit = async (e) => {
     const f = new FormData(e.target);
     try {
@@ -183,11 +249,10 @@ if (!C.firebase) {
         name: f.get('name').trim(), message: f.get('message').trim(), createdAt: serverTimestamp(),
       });
       e.target.reset();
-      page = 0;
       toast('축하 글이 등록되었습니다');
     } catch { toast('등록에 실패했습니다. 다시 시도해 주세요'); }
   };
-  $('guestbook').onclick = async (e) => {
+  $('guestbook').onclick = $('guestbookAll').onclick = async (e) => {
     const b = e.target.closest('[data-del]');
     if (!b) return;
     const pw = prompt('관리자 비밀번호');
@@ -218,6 +283,7 @@ if (!C.firebase) {
   $('likeBtn').classList.toggle('on', liked);
   onSnapshot(root, (s) => ($('likeCount').textContent = s.data()?.likes ?? 0));
   $('likeBtn').onclick = async () => {
+    floatHearts();
     if (liked) return toast('이미 마음을 전하셨어요 ♥');
     liked = true;
     $('likeBtn').classList.add('on');

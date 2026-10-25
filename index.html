@@ -7,7 +7,7 @@
   <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&family=Gowun+Batang:wght@400;700&family=Cormorant+Garamond:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&family=Gowun+Batang:wght@400;700&family=Cormorant+Garamond:wght@400;500&family=Playfair+Display&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="config.js"></script>
 </head>
@@ -15,7 +15,14 @@
   <main class="paper">
     <section class="hero">
       <p class="label">The Wedding</p>
-      <img class="hero-photo" id="mainPhoto" alt="">
+      <div class="hero-photo">
+        <img id="mainPhoto" alt="">
+        <h2 class="hero-title" id="heroTitle"></h2>
+        <div class="hero-caption">
+          <p id="heroEnDate"></p>
+          <p id="heroCaption"></p>
+        </div>
+      </div>
       <h1 class="names" id="heroNames"></h1>
       <hr class="rule">
       <p class="when" id="heroDate"></p>
@@ -51,11 +58,9 @@
       <p class="label">Location</p>
       <h2 class="title" id="venueName"></h2>
       <p class="body small" id="venueAddr"></p>
-      <a class="btn" id="mapBtn" target="_blank" rel="noopener">지도보기</a>
-      <div class="notes">
-        <p class="notes-label">안내사항</p>
-        <ul id="venueNotes"></ul>
-      </div>
+      <div class="map" id="map"></div>
+      <div class="navs" id="navs"></div>
+      <div class="transport" id="transport"></div>
     </section>
 
     <section class="reveal">
@@ -70,11 +75,13 @@
       <button class="btn" data-open="rsvpDialog">참석 의사 전달하기</button>
     </section>
 
-    <section class="reveal" data-needs="firebase">
+    <section class="reveal">
       <p class="label">Guestbook</p>
       <ul class="guestbook" id="guestbook"><li class="empty">첫 축하 글을 남겨주세요</li></ul>
-      <div class="pager" id="pager"></div>
-      <button class="btn ghost" data-open="guestDialog">축하 글 남기기</button>
+      <div class="gb-actions">
+        <button class="btn ghost" data-open="allDialog" id="allBtn" hidden>전체보기</button>
+        <button class="btn ghost" data-open="guestDialog">작성</button>
+      </div>
     </section>
 
     <section class="reveal">
@@ -98,6 +105,9 @@
   <dialog id="lightbox" class="lightbox">
     <div class="strip" id="strip"></div>
     <button class="close" data-close aria-label="닫기">✕</button>
+    <button class="nav prev" id="lbPrev" aria-label="이전 사진">‹</button>
+    <button class="nav next" id="lbNext" aria-label="다음 사진">›</button>
+    <p class="lb-count" id="lbCount"></p>
   </dialog>
 
   <dialog id="guestDialog">
@@ -110,6 +120,11 @@
         <button class="btn">남기기</button>
       </div>
     </form>
+  </dialog>
+
+  <dialog id="allDialog" class="sheet">
+    <div class="sheet-head"><p class="label">Guestbook</p><button data-close aria-label="닫기">✕</button></div>
+    <ul class="guestbook" id="guestbookAll"></ul>
   </dialog>
 
   <dialog id="rsvpDialog">
