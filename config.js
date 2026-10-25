@@ -95,7 +95,7 @@ window.CONFIG = {
 
   // https://developers.kakao.com > 내 애플리케이션 > 앱 키 > JavaScript 키
   // 카카오맵 지도와 카카오톡 공유에 같이 씀. 비우면 지도는 숨기고 공유는 링크 복사로 대체
-  kakaoKey: "",
+  kakaoKey: "830a79a16f7124ace518506c6364ec8b",
 
   // Firebase 콘솔 > 프로젝트 설정 > 웹 앱 config 객체. 비우면 RSVP/하트는 숨겨지고 방명록은 작성 불가
   firebase: null,
