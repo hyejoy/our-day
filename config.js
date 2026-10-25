@@ -51,7 +51,7 @@ window.CONFIG = {
   // 사진은 700px 폭, JPEG 품질 75% 정도로 줄여서 images/ 에 넣고 경로만 적으세요
   gallery: [1, 2, 3, 4, 5, 6, 7, 8].map((n) => `images/gallery/${n}.jpg`),
 
-  // 연락처·계좌는 마스킹 값. 실제 값은 config.private.js (git 미포함)에 두면 덮어씀
+  // 연락처·계좌는 0으로 채운 임시 값. 실제 값은 config.private.js (git 미포함)에 두면 덮어씀
   contacts: {
     groom: [
       { role: "신랑", name: "김민재", tel: "010-0000-0000" },
@@ -60,7 +60,7 @@ window.CONFIG = {
     ],
     bride: [
       { role: "신부", name: "최혜조", tel: "010-0000-0000" },
-      { role: "신부 아버지", name: "최규성", tel: "010-****-****" },
+      { role: "신부 아버지", name: "최규성", tel: "010-0000-0000" },
     ],
   },
 
@@ -70,7 +70,7 @@ window.CONFIG = {
         role: "신랑",
         name: "김민재",
         bank: "신한",
-        number: "110-***-******",
+        number: "110-000-000000",
       },
     ],
     bride: [
@@ -78,7 +78,7 @@ window.CONFIG = {
         role: "신부",
         name: "최혜조",
         bank: "농협",
-        number: "352-****-****-**",
+        number: "352-0000-0000-00",
       },
     ],
   },
