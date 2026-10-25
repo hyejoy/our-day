@@ -1,147 +1,204 @@
 <!doctype html>
 <html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Wedding Invitation</title>
-  <meta property="og:type" content="website">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&family=Gowun+Batang:wght@400;700&family=Cormorant+Garamond:wght@400;500&family=Playfair+Display&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <script src="config.js"></script>
-</head>
-<body>
-  <main class="paper">
-    <section class="hero">
-      <p class="label">The Wedding</p>
-      <div class="hero-photo">
-        <img id="mainPhoto" alt="">
-        <h2 class="hero-title" id="heroTitle"></h2>
-        <div class="hero-caption">
-          <p id="heroEnDate"></p>
-          <p id="heroCaption"></p>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Wedding Invitation</title>
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Courier+Prime&family=Gowun+Batang:wght@400;700&family=Cormorant+Garamond:wght@400;500&family=Playfair+Display&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="config.js"></script>
+    <!-- 실제 연락처·계좌 (없으면 마스킹 값 그대로) -->
+    <script src="config.private.js"></script>
+  </head>
+  <body>
+    <main class="paper">
+      <section class="hero">
+        <p class="label">The Wedding</p>
+        <div class="hero-photo">
+          <img id="mainPhoto" alt="" />
+          <h2 class="hero-title" id="heroTitle"></h2>
+          <div class="hero-caption">
+            <p id="heroEnDate"></p>
+            <p id="heroCaption"></p>
+          </div>
         </div>
+        <h1 class="names" id="heroNames"></h1>
+        <hr class="rule" />
+        <p class="when" id="heroDate"></p>
+        <p class="where" id="heroVenue"></p>
+      </section>
+
+      <section class="reveal">
+        <p class="label">Invitation</p>
+        <h2 class="title" id="inviteTitle"></h2>
+        <p class="body" id="inviteBody"></p>
+        <div class="parents" id="parents"></div>
+      </section>
+
+      <section class="reveal">
+        <p class="label">Countdown</p>
+        <div class="countdown" id="countdown"></div>
+        <p class="body small" id="countdownText"></p>
+      </section>
+
+      <section class="reveal">
+        <p class="label">Calendar</p>
+        <h2 class="title" id="calTitle"></h2>
+        <table class="calendar" id="calendar"></table>
+        <p class="cal-foot" id="calFoot"></p>
+      </section>
+
+      <section class="reveal">
+        <p class="label">Gallery</p>
+        <div class="gallery" id="gallery"></div>
+      </section>
+
+      <section class="reveal">
+        <p class="label">Location</p>
+        <h2 class="title" id="venueName"></h2>
+        <p class="body small" id="venueAddr"></p>
+        <div class="map" id="map"></div>
+        <div class="navs" id="navs"></div>
+        <div class="transport" id="transport"></div>
+      </section>
+
+      <section class="reveal">
+        <p class="label">Contact</p>
+        <div id="contacts"></div>
+      </section>
+
+      <section class="reveal" data-needs="firebase">
+        <p class="label">R.S.V.P</p>
+        <h2 class="title">참석 여부를 알려주세요</h2>
+        <p class="body small">
+          소중한 자리를 준비하는 데<br />큰 도움이 됩니다.
+        </p>
+        <button class="btn" data-open="rsvpDialog">참석 의사 전달하기</button>
+      </section>
+
+      <section class="reveal">
+        <p class="label">Guestbook</p>
+        <ul class="guestbook" id="guestbook">
+          <li class="empty">첫 축하 글을 남겨주세요</li>
+        </ul>
+        <div class="gb-actions">
+          <button class="btn ghost" data-open="allDialog" id="allBtn" hidden>
+            전체보기
+          </button>
+          <button class="btn ghost" data-open="guestDialog">작성</button>
+        </div>
+      </section>
+
+      <section class="reveal">
+        <p class="label">With Love</p>
+        <div id="accounts"></div>
+      </section>
+
+      <footer class="reveal">
+        <p class="foot-names" id="footNames"></p>
+        <p class="foot-date" id="footDate"></p>
+        <p class="quote">
+          <span id="quote"></span><span class="cursor">|</span>
+        </p>
+        <button
+          class="like"
+          id="likeBtn"
+          data-needs="firebase"
+          aria-label="좋아요"
+        >
+          ♥ <span id="likeCount">0</span>
+        </button>
+        <div class="share">
+          <button class="pill" id="kakaoBtn">💬 카카오톡 공유</button>
+          <button class="pill" id="copyLinkBtn">🔗 주소 복사</button>
+        </div>
+        <div class="seal">ours</div>
+      </footer>
+    </main>
+
+    <dialog id="lightbox" class="lightbox">
+      <div class="strip" id="strip"></div>
+      <button class="close" data-close aria-label="닫기">✕</button>
+      <button class="nav prev" id="lbPrev" aria-label="이전 사진">‹</button>
+      <button class="nav next" id="lbNext" aria-label="다음 사진">›</button>
+      <p class="lb-count" id="lbCount"></p>
+    </dialog>
+
+    <dialog id="guestDialog">
+      <form id="guestForm" method="dialog">
+        <p class="label">Guestbook</p>
+        <input name="name" placeholder="이름" maxlength="20" required />
+        <textarea
+          name="message"
+          placeholder="축하 메시지를 남겨주세요"
+          maxlength="500"
+          rows="5"
+          required
+        ></textarea>
+        <div class="row">
+          <button type="button" class="btn ghost" data-close>취소</button>
+          <button class="btn">남기기</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="allDialog" class="sheet">
+      <div class="sheet-head">
+        <p class="label">Guestbook</p>
+        <button data-close aria-label="닫기">✕</button>
       </div>
-      <h1 class="names" id="heroNames"></h1>
-      <hr class="rule">
-      <p class="when" id="heroDate"></p>
-      <p class="where" id="heroVenue"></p>
-    </section>
+      <ul class="guestbook" id="guestbookAll"></ul>
+    </dialog>
 
-    <section class="reveal">
-      <p class="label">Invitation</p>
-      <h2 class="title" id="inviteTitle"></h2>
-      <p class="body" id="inviteBody"></p>
-      <div class="parents" id="parents"></div>
-    </section>
+    <dialog id="rsvpDialog">
+      <form id="rsvpForm" method="dialog">
+        <p class="label">R.S.V.P</p>
+        <div class="seg">
+          <label
+            ><input
+              type="radio"
+              name="side"
+              value="groom"
+              required
+            />신랑측</label
+          ><label><input type="radio" name="side" value="bride" />신부측</label>
+        </div>
+        <div class="seg">
+          <label
+            ><input
+              type="radio"
+              name="attend"
+              value="yes"
+              required
+            />참석</label
+          ><label><input type="radio" name="attend" value="no" />불참</label>
+        </div>
+        <input name="name" placeholder="성함" maxlength="20" required />
+        <input
+          name="count"
+          type="number"
+          min="1"
+          max="20"
+          value="1"
+          placeholder="본인 포함 인원"
+        />
+        <div class="row">
+          <button type="button" class="btn ghost" data-close>취소</button>
+          <button class="btn">전달하기</button>
+        </div>
+      </form>
+    </dialog>
 
-    <section class="reveal">
-      <p class="label">Countdown</p>
-      <div class="countdown" id="countdown"></div>
-      <p class="body small" id="countdownText"></p>
-    </section>
-
-    <section class="reveal">
-      <p class="label">Calendar</p>
-      <h2 class="title" id="calTitle"></h2>
-      <table class="calendar" id="calendar"></table>
-      <p class="cal-foot" id="calFoot"></p>
-    </section>
-
-    <section class="reveal">
-      <p class="label">Gallery</p>
-      <div class="gallery" id="gallery"></div>
-    </section>
-
-    <section class="reveal">
-      <p class="label">Location</p>
-      <h2 class="title" id="venueName"></h2>
-      <p class="body small" id="venueAddr"></p>
-      <div class="map" id="map"></div>
-      <div class="navs" id="navs"></div>
-      <div class="transport" id="transport"></div>
-    </section>
-
-    <section class="reveal">
-      <p class="label">Contact</p>
-      <div id="contacts"></div>
-    </section>
-
-    <section class="reveal" data-needs="firebase">
-      <p class="label">R.S.V.P</p>
-      <h2 class="title">참석 여부를 알려주세요</h2>
-      <p class="body small">소중한 자리를 준비하는 데<br>큰 도움이 됩니다.</p>
-      <button class="btn" data-open="rsvpDialog">참석 의사 전달하기</button>
-    </section>
-
-    <section class="reveal">
-      <p class="label">Guestbook</p>
-      <ul class="guestbook" id="guestbook"><li class="empty">첫 축하 글을 남겨주세요</li></ul>
-      <div class="gb-actions">
-        <button class="btn ghost" data-open="allDialog" id="allBtn" hidden>전체보기</button>
-        <button class="btn ghost" data-open="guestDialog">작성</button>
-      </div>
-    </section>
-
-    <section class="reveal">
-      <p class="label">With Love</p>
-      <div id="accounts"></div>
-    </section>
-
-    <footer class="reveal">
-      <p class="foot-names" id="footNames"></p>
-      <p class="foot-date" id="footDate"></p>
-      <p class="quote"><span id="quote"></span><span class="cursor">|</span></p>
-      <button class="like" id="likeBtn" data-needs="firebase" aria-label="좋아요">♥ <span id="likeCount">0</span></button>
-      <div class="share">
-        <button class="pill" id="kakaoBtn">💬 카카오톡 공유</button>
-        <button class="pill" id="copyLinkBtn">🔗 주소 복사</button>
-      </div>
-      <div class="seal">ours</div>
-    </footer>
-  </main>
-
-  <dialog id="lightbox" class="lightbox">
-    <div class="strip" id="strip"></div>
-    <button class="close" data-close aria-label="닫기">✕</button>
-    <button class="nav prev" id="lbPrev" aria-label="이전 사진">‹</button>
-    <button class="nav next" id="lbNext" aria-label="다음 사진">›</button>
-    <p class="lb-count" id="lbCount"></p>
-  </dialog>
-
-  <dialog id="guestDialog">
-    <form id="guestForm" method="dialog">
-      <p class="label">Guestbook</p>
-      <input name="name" placeholder="이름" maxlength="20" required>
-      <textarea name="message" placeholder="축하 메시지를 남겨주세요" maxlength="500" rows="5" required></textarea>
-      <div class="row">
-        <button type="button" class="btn ghost" data-close>취소</button>
-        <button class="btn">남기기</button>
-      </div>
-    </form>
-  </dialog>
-
-  <dialog id="allDialog" class="sheet">
-    <div class="sheet-head"><p class="label">Guestbook</p><button data-close aria-label="닫기">✕</button></div>
-    <ul class="guestbook" id="guestbookAll"></ul>
-  </dialog>
-
-  <dialog id="rsvpDialog">
-    <form id="rsvpForm" method="dialog">
-      <p class="label">R.S.V.P</p>
-      <div class="seg"><label><input type="radio" name="side" value="groom" required>신랑측</label><label><input type="radio" name="side" value="bride">신부측</label></div>
-      <div class="seg"><label><input type="radio" name="attend" value="yes" required>참석</label><label><input type="radio" name="attend" value="no">불참</label></div>
-      <input name="name" placeholder="성함" maxlength="20" required>
-      <input name="count" type="number" min="1" max="20" value="1" placeholder="본인 포함 인원">
-      <div class="row">
-        <button type="button" class="btn ghost" data-close>취소</button>
-        <button class="btn">전달하기</button>
-      </div>
-    </form>
-  </dialog>
-
-  <div class="toast" id="toast" role="status"></div>
-  <script type="module" src="app.js"></script>
-</body>
+    <div class="toast" id="toast" role="status"></div>
+    <script type="module" src="app.js"></script>
+  </body>
 </html>
